@@ -12,26 +12,23 @@ public class Main {
 
     public static void main(String[] args) {
 
-        final var room = Room.of(PlayerId.of(), AccessConfig.of(5, 9));
-        room.addPlayer(PlayerId.of());
-        room.addPlayer(PlayerId.of());
-        room.addPlayer(PlayerId.of());
-        room.addPlayer(PlayerId.of());
+        final var p1 = PlayerId.of();
+        final var p2 = PlayerId.of();
+        final var p3 = PlayerId.of();
+        final var p4 = PlayerId.of();
 
-        final var cardsValues = CardValue.values();
-        final var cardsClub = new ArrayList<Card>();
+        final var room = Room.of(p1, AccessConfig.of(5, 9));
+        room.addPlayer(p2);
+        room.addPlayer(p3);
+        room.addPlayer(p4);
 
-        for (final var cardValue : cardsValues) {
-            cardsClub.add(Card.of(cardValue, Suit.CLUBS));
-        }
+        room.toSorting();
 
-        Collections.shuffle(cardsClub);
+        final var card1 = room.choiceCard(p1);
+        System.out.println(card1.getCardValue());
+        final var card2 = room.choiceCard(p2);
+        System.out.println(card2.getCardValue());
 
-        final var lara = cardsClub.get(12);
-        final var gabriel = cardsClub.get(11);
-
-        System.out.println(lara.getCardValue());
-        System.out.println(gabriel.getCardValue());
 
 //        print(room);
     }
