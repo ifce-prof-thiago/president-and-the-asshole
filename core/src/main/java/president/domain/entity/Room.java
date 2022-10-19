@@ -14,28 +14,32 @@ import java.util.List;
 public class Room {
 
     private final RoomId roomId;
-    private PlayerId ownerId;
+    private Player owner;
     private final RoomLink roomLink;
     private AccessConfig accessConfig;
-    private List<PlayerId> players;
-    private List<Card> cardsToChoice;
+    private List<Player> players;
     private List<PlayerId> playersToChoice;
+    private List<Card> cardsToChoice;
     private Status status;
 
     private Room(
             final RoomId roomId,
-            final PlayerId ownerId,
+            final Player owner,
             final RoomLink roomLink,
             final AccessConfig accessConfig,
-            final List<PlayerId> players) {
+            final List<Player> players) {
 
         this.roomId = roomId;
-        this.ownerId = ownerId;
+        this.owner = owner;
         this.roomLink = roomLink;
         this.accessConfig = accessConfig;
         this.players = players;
         this.cardsToChoice = new ArrayList<>();
-        this.playersToChoice = new ArrayList<>(players);
+
+        this.playersToChoice = new ArrayList<>(
+                players.stream().map(p -> p.getPlayerId()).toList()
+        );
+
         this.status = Status.WAITING;
 
     }
@@ -53,6 +57,10 @@ public class Room {
 
     private void shuffleCardsToChoice() {
 
+        if (players.size() < accessConfig.getMinPlayers()) {
+            throw new RuntimeException("'min players' can't be less than four!");
+        }
+
         for (final var cardValue : CardValue.values()) {
             cardsToChoice.add(Card.of(cardValue, Suit.CLUBS));
         }
@@ -61,16 +69,16 @@ public class Room {
 
     }
 
-    public static Room of(final PlayerId ownerId, final AccessConfig accessConfig) {
+    public static Room of(final Player owner, final AccessConfig accessConfig) {
 
         final var roomId = RoomId.of();
         final var roomLink = RoomLink.of();
-        final var players = new ArrayList<PlayerId>();
-        players.add(ownerId);
+        final var players = new ArrayList<Player>();
+        players.add(owner);
 
         return new Room(
                 roomId,
-                ownerId,
+                owner,
                 roomLink,
                 accessConfig,
                 players
@@ -78,24 +86,25 @@ public class Room {
 
     }
 
-    public Card choiceCard(final PlayerId playerId) {
+    public Card choiceCard(final Player player) {
 
         if (status != Status.IN_SORTING) {
             throw new IllegalStateException("Room is not in sorting");
         }
 
-        if (!playersToChoice.contains(playerId)) {
+        if (!playersToChoice.contains(player.getPlayerId())) {
             throw new IllegalArgumentException(
-                    "Can't choice card for player " + playerId.getValue()
+                    "Can't choice card for player " + player.getPlayerId().getValue()
             );
         }
 
         final var card = cardsToChoice.get(0);
+        player.choiceCard(card);
         cardsToChoice.remove(card);
-        playersToChoice.remove(playerId);
+        playersToChoice.remove(player.getPlayerId());
 
         if (playersToChoice.isEmpty()) {
-            toInGame();
+//            toInGame();
         }
 
         return card;
@@ -112,14 +121,14 @@ public class Room {
 
     }
 
-    public void addPlayer(final PlayerId playerId) {
+    public void addPlayer(final Player player) {
 
         if (players.size() >= accessConfig.getMaxPlayers()) {
             throw new RuntimeException("This room is full!");
         }
 
-        this.players.add(playerId);
-        this.playersToChoice.add(playerId);
+        this.players.add(player);
+        this.playersToChoice.add(player.getPlayerId());
 
     }
 
@@ -127,8 +136,8 @@ public class Room {
         return roomId;
     }
 
-    public PlayerId getOwnerId() {
-        return ownerId;
+    public Player getOwner() {
+        return owner;
     }
 
     public RoomLink getRoomLink() {
@@ -139,7 +148,7 @@ public class Room {
         return accessConfig;
     }
 
-    public List<PlayerId> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 

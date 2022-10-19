@@ -2,50 +2,46 @@ package president.domain.valueobjects;
 
 public class AccessConfig implements ValueObject {
 
-    private final int minPlayers;
+    private final static int MIN_PLAYERS = 4;
     private final int maxPlayers;
     private final int timeOfNextPlayer;
     private final Visibility visibility;
 
     private AccessConfig(
-            final int minPlayers,
             final int maxPlayers,
             final int timeOfNextPlayer,
             final Visibility visibility) {
 
-        this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
         this.timeOfNextPlayer = timeOfNextPlayer;
         this.visibility = visibility;
 
     }
 
-    public static AccessConfig of(
-            final int minPlayers,
+    public static AccessConfig ofPublic(
             final int maxPlayers) {
 
         return AccessConfig.of(
-                minPlayers,
                 maxPlayers,
                 Visibility.PUBLIC
         );
     }
 
+    public static AccessConfig ofPrivate(
+            final int maxPlayers) {
+
+        return AccessConfig.of(
+                maxPlayers,
+                Visibility.PRIVATE
+        );
+    }
+
     public static AccessConfig of(
-            final int minPlayers,
             final int maxPlayers,
             final Visibility visibility) {
 
-        if (minPlayers < 4) {
-            throw new RuntimeException(
-                    "'min players' can't be less than 4"
-            );
-        }
-
-        if (minPlayers > 13) {
-            throw new RuntimeException(
-                    "'min players' can't be greater than " + 13
-            );
+        if (maxPlayers < AccessConfig.MIN_PLAYERS) {
+            throw new RuntimeException("'max players' can't be less than four");
         }
 
         if (maxPlayers > 13) {
@@ -54,14 +50,7 @@ public class AccessConfig implements ValueObject {
             );
         }
 
-        if (maxPlayers < minPlayers) {
-            throw new RuntimeException(
-                    "'max players' can't be less than " + minPlayers
-            );
-        }
-
         return new AccessConfig(
-                minPlayers,
                 maxPlayers,
                 15,
                 visibility
@@ -70,7 +59,7 @@ public class AccessConfig implements ValueObject {
     }
 
     public int getMinPlayers() {
-        return minPlayers;
+        return MIN_PLAYERS;
     }
 
     public int getMaxPlayers() {
