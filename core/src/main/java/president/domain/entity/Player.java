@@ -1,12 +1,14 @@
 package president.domain.entity;
 
+import president.domain.valueobjects.CardValue;
 import president.domain.valueobjects.identifier.PlayerId;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class Player {
+public class Player implements  Comparable<Player> {
 
     private PlayerId playerId;
     private String nickName;
@@ -55,5 +57,10 @@ public class Player {
 
     public Card getChoiceCard() {
         return choiceCard;
+    }
+
+    @Override
+    public int compareTo(final Player o) {
+        return o.choiceCard.getCardValue().getValue() - this.choiceCard.getCardValue().getValue();
     }
 }

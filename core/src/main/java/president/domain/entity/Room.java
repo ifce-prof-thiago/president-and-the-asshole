@@ -104,17 +104,21 @@ public class Room {
         playersToChoice.remove(player.getPlayerId());
 
         if (playersToChoice.isEmpty()) {
-//            toInGame();
+            toInGame();
         }
 
         return card;
 
     }
 
+    public void sortPlayers() {
+        players.sort(Player::compareTo);
+    }
+
     public void toInGame() {
 
-        if (status != Status.IN_SORTING || status != Status.ROUND_FINISHED) {
-            throw new IllegalStateException("Room is not in sorting");
+        if (status != Status.IN_SORTING && status != Status.ROUND_FINISHED) {
+            throw new IllegalStateException("Room is not in sorting or round finished");
         }
 
         status = Status.IN_GAME;
@@ -150,6 +154,10 @@ public class Room {
 
     public List<Player> getPlayers() {
         return players;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public enum Status {

@@ -1,5 +1,7 @@
 package president.domain.valueobjects;
 
+import java.util.Comparator;
+
 public enum CardValue implements ValueObject {
 
     ACE(12),
@@ -24,5 +26,9 @@ public enum CardValue implements ValueObject {
 
     public int getValue() {
         return value;
+    }
+
+    public int compare(final CardValue c) {
+        return this.getValue() - c.getValue();
     }
 }
