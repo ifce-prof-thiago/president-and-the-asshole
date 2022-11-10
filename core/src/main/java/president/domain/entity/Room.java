@@ -1,9 +1,6 @@
 package president.domain.entity;
 
-import president.domain.valueobjects.AccessConfig;
-import president.domain.valueobjects.CardValue;
-import president.domain.valueobjects.RoomLink;
-import president.domain.valueobjects.Suit;
+import president.domain.valueobjects.*;
 import president.domain.valueobjects.identifier.PlayerId;
 import president.domain.valueobjects.identifier.RoomId;
 
@@ -13,6 +10,7 @@ import java.util.List;
 
 public class Room {
 
+    private final static int N_DECKS = 2;
     private final RoomId roomId;
     private Player owner;
     private final RoomLink roomLink;
@@ -20,6 +18,8 @@ public class Room {
     private List<Player> players;
     private List<PlayerId> playersToChoice;
     private List<Card> cardsToChoice;
+
+    private List<Card> cardsToDeal;
     private Status status;
 
     private Room(
@@ -35,13 +35,43 @@ public class Room {
         this.accessConfig = accessConfig;
         this.players = players;
         this.cardsToChoice = new ArrayList<>();
+        this.cardsToDeal = new ArrayList<>();
 
-        this.playersToChoice = new ArrayList<>(
-                players.stream().map(p -> p.getPlayerId()).toList()
-        );
+        initializePlayers(players);
 
         this.status = Status.WAITING;
 
+    }
+
+    public void dealCards() {
+
+        var qtyCardsOfRemove = (N_DECKS * 52) % players.size();
+
+        for (int i = 0; i < N_DECKS; i++) {
+            for (final var card : Deck.of().getCards()) {
+                if (card.getCardValue().equals(CardValue.THREE) && qtyCardsOfRemove > 0) {
+                    qtyCardsOfRemove--;
+                    continue;
+                }
+                cardsToDeal.add(card);
+            }
+        }
+
+        Collections.shuffle(cardsToDeal);
+
+        var currentPlayer = 0;
+
+        for (final var card : cardsToDeal) {
+            players.get(currentPlayer).addCard(card);
+            currentPlayer = (currentPlayer + 1) % players.size();
+        }
+
+    }
+
+    private void initializePlayers(List<Player> players) {
+        this.playersToChoice = new ArrayList<>(
+                players.stream().map(p -> p.getPlayerId()).toList()
+        );
     }
 
     public void toSorting() {
@@ -103,22 +133,30 @@ public class Room {
         cardsToChoice.remove(card);
         playersToChoice.remove(player.getPlayerId());
 
-        if (playersToChoice.isEmpty()) {
-            toInGame();
-        }
-
         return card;
 
     }
 
     public void sortPlayers() {
-        players.sort(Player::compareTo);
+        if (playersToChoice.isEmpty()) {
+            players.sort(Player::compareTo);
+            toThrowing();
+        }
+    }
+
+    void toThrowing() {
+
+        if (status != Status.IN_SORTING && status != Status.ROUND_FINISHED) {
+            throw new IllegalStateException("Room is not in sorting or round finished");
+        }
+
+        this.status = Status.THROWING_CARDS;
     }
 
     public void toInGame() {
 
-        if (status != Status.IN_SORTING && status != Status.ROUND_FINISHED) {
-            throw new IllegalStateException("Room is not in sorting or round finished");
+        if (status != Status.THROWING_CARDS) {
+            throw new IllegalStateException("Room is not throwing cards");
         }
 
         status = Status.IN_GAME;
@@ -160,8 +198,12 @@ public class Room {
         return status;
     }
 
+    public List<Card> getCardsToDeal() {
+        return Collections.unmodifiableList(cardsToDeal);
+    }
+
     public enum Status {
-        WAITING, IN_SORTING, IN_GAME, ROUND, ROUND_FINISHED, FINISHED
+        WAITING, IN_SORTING, THROWING_CARDS, IN_GAME, ROUND_FINISHED, GAME_FINISHED
 
     }
 }

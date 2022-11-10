@@ -1,14 +1,12 @@
 package president.domain.entity;
 
-import president.domain.valueobjects.CardValue;
 import president.domain.valueobjects.identifier.PlayerId;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-public class Player implements  Comparable<Player> {
+public class Player implements Comparable<Player> {
 
     private PlayerId playerId;
     private String nickName;
@@ -43,6 +41,10 @@ public class Player implements  Comparable<Player> {
         this.choiceCard = card;
     }
 
+    public void addCard(final Card card) {
+        this.cards.add(card);
+    }
+
     public PlayerId getPlayerId() {
         return playerId;
     }
@@ -60,7 +62,8 @@ public class Player implements  Comparable<Player> {
     }
 
     @Override
-    public int compareTo(final Player o) {
-        return o.choiceCard.getCardValue().getValue() - this.choiceCard.getCardValue().getValue();
+    public int compareTo(final Player player) {
+        return this.choiceCard.compareTo(player.choiceCard);
     }
+
 }

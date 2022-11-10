@@ -4,7 +4,7 @@ import president.domain.valueobjects.CardValue;
 import president.domain.valueobjects.Suit;
 import president.domain.valueobjects.identifier.CardId;
 
-public class Card {
+public class Card implements Comparable<Card> {
 
     private final CardId cardId;
     private final CardValue cardValue;
@@ -32,4 +32,13 @@ public class Card {
         return suit;
     }
 
+    @Override
+    public String toString() {
+        return this.cardValue + " of " + this.suit;
+    }
+
+    @Override
+    public int compareTo(final Card o) {
+        return o.getCardValue().getValue() - this.getCardValue().getValue();
+    }
 }
