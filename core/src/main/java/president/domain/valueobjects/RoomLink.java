@@ -14,7 +14,7 @@ public class RoomLink implements ValueObject {
         return new RoomLink(UUID.randomUUID());
     }
 
-    public UUID getValue() {
-        return value;
+    public String getValue() {
+        return value.toString();
     }
 }

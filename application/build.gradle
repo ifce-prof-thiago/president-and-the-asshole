@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'lp2'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":core")
+}
+
+test {
+    useJUnitPlatform()
+}

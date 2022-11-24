@@ -2,7 +2,7 @@ package president.domain.valueobjects.identifier;
 
 import java.util.UUID;
 
-public class RoomId extends  BaseId {
+public class RoomId extends BaseId {
 
     private RoomId(UUID value) {
         super(value);
@@ -14,6 +14,10 @@ public class RoomId extends  BaseId {
 
     public static RoomId of(UUID value) {
         return new RoomId(value);
+    }
+
+    public static RoomId of(String value) {
+        return new RoomId(UUID.fromString(value));
     }
 
 }

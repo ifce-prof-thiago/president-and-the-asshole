@@ -1,3 +1,5 @@
 rootProject.name = 'president-and-the-asshole'
 include 'core'
+include 'application'
+include 'infrastructure'
 
